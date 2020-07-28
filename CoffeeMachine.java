@@ -2,169 +2,162 @@ package machine;
 
 import java.util.Scanner;
 
+enum CoffeeStation {
+    BUY,
+    TAKE,
+    FILL,
+    REMAINING,
+    EXIT
+}
+
 public class CoffeeMachine {
-    public static void contains (int[] ingredients) {
-        System.out.println();
-        System.out.println("The coffee machine has:");
-        System.out.printf("%d of water", ingredients[0]);
-        System.out.println();
-        System.out.printf("%d of milk", ingredients[1]);
-        System.out.println();
-        System.out.printf("%d of coffee beans", ingredients[2]);
-        System.out.println();
-        System.out.printf("%d of disposable cups", ingredients[3]);
-        System.out.println();
-        System.out.printf("%d of money", ingredients[4]);
-        System.out.println();
-    }
+    static int[] contains = {400, 540, 120, 9, 550};
+    static int[] espresso = {250, 0, 16, 1, 4};
+    static int[] latte = {350, 75, 20, 1, 7};
+    static int[] cappuccino = {200, 100, 12, 1, 6};
+    static String[] component = {"water", "milk", "coffee beans", "cups"};
+    static String[] filling = {"Write how many ml of water do you want to add:", "Write how many ml of milk do you want to add:", "Write how many grams of coffee beans do you want to add:", "Write how many disposable cups of coffee do you want to add:"};
+    static String mainMenu = "Write action (buy, fill, take, remaining, exit):";
+    static boolean end = false;
 
-    public static int[] buy () {
-        Scanner scanner = new Scanner(System.in);
-
-        int[] ingredients = {0, 0, 0, 0, 0};
-
-        System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:");
-        String input = scanner.next();
-
-        if (!input.equals("back")) {
-            while (!input.equals("1") ^ !input.equals("2") ^ !input.equals("3")) {
-                input = scanner.next();
-                if (input.equals("back")) {
-                    break;
-                }
-            }
-            switch (input) {
-                case "1":
-                    ingredients[0] = 250;
-                    ingredients[2] = 16;
-                    ingredients[3] = 1;
-                    ingredients[4] = 4;
-                    break;
-                case "2":
-                    ingredients[0] = 350;
-                    ingredients[1] = 75;
-                    ingredients[2] = 20;
-                    ingredients[3] = 1;
-                    ingredients[4] = 7;
-                    break;
-                case "3":
-                    ingredients[0] = 200;
-                    ingredients[1] = 100;
-                    ingredients[2] = 12;
-                    ingredients[3] = 1;
-                    ingredients[4] = 6;
-                    break;
-            }
-        }
-
-        return ingredients;
-    }
-
-    public static int[] fill() {
-        Scanner scanner = new Scanner(System.in);
-
-        int[] add = new int[4];
-
-        System.out.println("Write how many ml of water do you want to add:");
-        String input = scanner.next();
-        if (!input.equals("back")) {
-            add[0] = Integer.parseInt(input);
-            System.out.println("Write how many ml of milk do you want to add:");
-            input = scanner.next();
-            if (!input.equals("back")) {
-                add[1] = Integer.parseInt(input);
-                System.out.println("Write how many grams of coffee beans do you want to add:");
-                input = scanner.next();
-                if (!input.equals("back")) {
-                    add[2] = Integer.parseInt(input);
-                    System.out.println("Write how many disposable cups of coffee do you want to add:");
-                    input = scanner.next();
-                    if (!input.equals("back")) {
-                        add[3] = Integer.parseInt(input);
-                    }
-                }
-            }
-        }
-        return add;
-    }
+    static CoffeeStation coffeeStation;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        int[] machineContains = {400, 540, 120, 9, 550};
+        String input;
 
-
-        String intro = "Write action (buy, fill, take, remaining, exit):";
-
-        System.out.println();
-
-        System.out.println(intro);
-        String action = scanner.next();
-        boolean buy;
-        boolean fill;
-        boolean take;
-
-        while (!action.equals("exit")) {
-            buy = action.equals("buy");
-            fill = action.equals("fill");
-            take = action.equals("take");
-
-            while (!buy ^ !fill ^ !take ^ action.equals("remaining")) {
-                action = scanner.next();
-                buy = action.equals("buy");
-                fill = action.equals("fill");
-                take = action.equals("take");
-            }
-
-            switch (action) {
-                case "buy":
-                    int[] ingredients = buy();
-                    boolean enoughIngredients = true;
-                    String component = "";
-
-                    for (int i = 0; i < 4; i++) {
-                        if ((machineContains[i] - ingredients[i]) < 0) {
-                            enoughIngredients = false;
-                            if (i == 0) {
-                                component = "water";
-                            } else if (i == 1) {
-                                component = "milk";
-                            } else if (i == 2) {
-                                component = "coffee beans";
-                            } else {
-                                component = "cups";
-                            }
-                            System.out.printf("Sorry, not enough %s!", component);
-                            break;
-                        }
-                        machineContains[i] -= ingredients[i];
-                    }
-                    if (enoughIngredients) {
-                        machineContains[4] += ingredients[4];
-                    }
-                    break;
-
-                case "fill":
-                    int[] filling = fill();
-
-                    for (int i = 0; i < 4; i++) {
-                        machineContains[i] += filling[i];
-                    }
-                    break;
-
-                case "take":
-                    System.out.printf("I gave you $%d", machineContains[4]);
-                    System.out.println();
-
-                    machineContains[4] = 0;
-                    break;
-
-                case "remaining":
-                    contains(machineContains);
-            }
-
+        while (!end) {
             System.out.println();
-            System.out.println(intro);
-            action = scanner.next();
+            System.out.println(mainMenu);
+            input = scanner.next();
+            while (!input.equals("buy") ^ !input.equals("fill") ^ !input.equals("take") ^ !input.equals("remaining") ^ !input.equals("exit")) {
+                input = scanner.next();
+            }
+            CoffeeMachineState(input);
+        }
+    }
+
+    public static void CoffeeMachineState(String action) {
+        Scanner scanner = new Scanner(System.in);
+        String input;
+        boolean conditions;
+        end = false;
+
+        switch (action) {
+            case "buy":
+                coffeeStation = CoffeeStation.BUY;
+                break;
+            case "take":
+                coffeeStation = CoffeeStation.TAKE;
+                break;
+            case "remaining":
+                coffeeStation = CoffeeStation.REMAINING;
+                break;
+            case "fill":
+                coffeeStation = CoffeeStation.FILL;
+                break;
+            case "exit":
+                coffeeStation = CoffeeStation.EXIT;
+                break;
+        }
+
+        switch (coffeeStation) {
+            case BUY:
+                System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu:");
+                input = scanner.next();
+                conditions = input.equals("1") ^ input.equals("2") ^ input.equals("3") ^ input.equals("back");
+                while (!conditions) {
+                    input = scanner.next();
+                    conditions = input.equals("1") ^ input.equals("2") ^ input.equals("3") ^ input.equals("back");
+                }
+                if (input.equals("back")) {
+                    break;
+                }
+                boolean condition;
+                switch (input) {
+                    case "1":
+                        condition = true;
+                        for (int i = 0; i < 4; i++) {
+                            if (contains[i] - espresso[i] < 0) {
+                                System.out.printf("Sorry, not enough %s!", component[i]);
+                                System.out.println();
+                                condition = false;
+                                break;
+                            }
+                            contains[i] -= espresso[i];
+                        }
+                        if (condition) {
+                            System.out.println("I have enough resources, making you a coffee!");
+                            contains[4] += espresso[4];
+                        }
+                        break;
+                    case "2":
+                        condition = true;
+                        for (int i = 0; i < 4; i++) {
+                            if (contains[i] - latte[i] < 0) {
+                                System.out.printf("Sorry, not enough %s!", component[i]);
+                                System.out.println();
+                                condition = false;
+                                break;
+                            }
+                            contains[i] -= latte[i];
+                        }
+                        if (condition) {
+                            System.out.println("I have enough resources, making you a coffee!");
+                            contains[4] += latte[4];
+                        }
+                        break;
+                    case "3":
+                        condition = true;
+                        for (int i = 0; i < 4; i++) {
+                            if (contains[i] - cappuccino[i] < 0) {
+                                System.out.printf("Sorry, not enough %s!", component[i]);
+                                System.out.println();
+                                condition = false;
+                                break;
+                            }
+                            contains[i] -= cappuccino[i];
+                        }
+                        if (condition) {
+                            System.out.println("I have enough resources, making you a coffee!");
+                            contains[4] += cappuccino[4];
+                        }
+                        break;
+                }
+                break;
+            case TAKE:
+                System.out.printf("I gave you $%d", contains[4]);
+                System.out.println();
+                contains[4] = 0;
+                break;
+            case FILL:
+                for (int i = 0; i < 4; i++) {
+                    System.out.println(filling[i]);
+                    input = scanner.next();
+                    if (input.equals("back")) {
+                        break;
+                    } else {
+                        contains[i] += Integer.parseInt(input);
+                    }
+                }
+                break;
+            case REMAINING:
+                System.out.println();
+                System.out.println("The coffee machine has:");
+                System.out.printf("%d of water", contains[0]);
+                System.out.println();
+                System.out.printf("%d of milk", contains[1]);
+                System.out.println();
+                System.out.printf("%d of coffee beans", contains[2]);
+                System.out.println();
+                System.out.printf("%d of disposable cups", contains[3]);
+                System.out.println();
+                System.out.printf("%d of money", contains[4]);
+                System.out.println();
+                break;
+            case EXIT:
+                end = true;
+                break;
         }
     }
 }
